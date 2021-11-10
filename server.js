@@ -1,33 +1,39 @@
-const express = require('express');
-const mysql = require('mysql2');
+//const express = require('express');
 const inquirer = require('inquirer');
 const { inherits } = require('util');
+const db = require("./config/connection");
 
-const PORT = 3001;
-const app = express();
+// const PORT = process.env.PORT || 3001;
+// const app = express();
 
 // Express middleware
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// app.use(express.urlencoded({ extended: false }));
+// app.use(express.json());
 
+//db created
+function doChoice(ans) {
+    console.log(ans.choice);
+    switch (ans.choice) {
+        case 'View All Departments':
+            viewAllDepartments();
+            break;
+    }
+}
 
-//Connect to database
-// const db = mysql.createConnection(
-//     {
-//         host: 'localhost',
-//         user: 'root',
-//         password: '',
-//         database: 'company_db'
-//     },
-//     console.log('Connected to the company_db database')
-// );
+//db functions
+function viewAllDepartments() {
+    db.query('SELECT * FROM departments', function (err, results) {
+        console.log(results); // need to print this out in a table format
+    });
+    //init();
+}
 
 //List of prompt questions
 const promptUser = () => {
     return inquirer.prompt([
         {
             type: 'list',
-            name: 'to-do',
+            name: 'choice',
             message: 'What do you want to do?',
             choices: [
                 'View All Departments',
@@ -64,7 +70,7 @@ const promptUser = () => {
 function init() {
     console.log("Welcome to the Employee Tracker System.");
     promptUser()
-        .then((ans) => console.log(ans))
+        .then((ans) => doChoice(ans))
         .catch((err) => console.log(err));
 }
 

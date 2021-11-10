@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/shaotangyen/12-Employee-Management-System#readme",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "inquirer": "^8.2.0",
     "mysql2": "^2.3.3-rc.0"
