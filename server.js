@@ -3,6 +3,8 @@ const { CONNREFUSED } = require('dns');
 const inquirer = require('inquirer');
 const util = require('util');
 const db = require("./config/connection");
+const cTable = require('console.table');
+
 
 //List of prompt questions
 const promptUser = async () => {
@@ -61,7 +63,6 @@ async function viewAllDepartments() {
 }
 
 async function viewAllRoles() {
-    //let [data] = await db.query("SELECT * FROM roles");
     let [data] = await db.query(
         `SELECT roles.id, roles.title, departments.department_name AS department, roles.salary 
         FROM roles JOIN departments
@@ -94,7 +95,6 @@ async function addDepartment() {
             message: "What's the department name?",
         }
     ]).then((ans) => {
-        // console.log(ans.department);
         db.query(`INSERT INTO departments (department_name) VALUE ("${ans.department}")`);
         console.log(`Department ${ans.department} has been added`);
     });
@@ -122,8 +122,6 @@ async function addRole() {
         }
     ]).then(async (ans) => {
         let [[depId]] = await db.query(`SELECT id FROM departments where department_name = "${ans.department}"`);
-        // console.log(depId.id);
-        // console.log(`"${ans.role}", "${ans.salary}", ${ans.department}`);
         await db.query(`INSERT INTO roles (title, salary, department_id) VALUES ("${ans.role}", "${ans.salary}", ${depId.id})`);
         console.log(`Role ${ans.role} has been added`);
     });
@@ -150,7 +148,8 @@ async function addEmployee() {
             message: "What's the employee's role?",
             choices: roles.map((role) => {
                 return {
-                    name: role.title, value: role.id
+                    name: role.title,
+                    value: role.id
                 };
             }),
         },
@@ -168,10 +167,6 @@ async function addEmployee() {
         }
     ])
         .then(async (ans) => {
-            // let [[roleId]] = await db.query(`SELECT id FROM roles WHERE title = "${ans.title}"`);
-            // let [[managerId]] = await db.query(`SELECT id FROM employees WHERE first_name = "${ans.firstName}" AND last_name = "${ans.lastName}"`);
-            // console.log(roleId.id);
-            // console.log(managerId.id);
             await db.query(`INSERT INTO employees (first_name, last_name, role_id, manager_id) VALUES ("${ans.firstName}", "${ans.lastName}", ${ans.role}, ${ans.manager})`);
             console.log(`Employee ${ans.firstName} ${ans.lastName} has been added`);
         })
@@ -180,25 +175,45 @@ async function addEmployee() {
     promptUser();
 }
 
-async function updateEmployee() { }
-
 // to do
-// View All Departments
-//  -> table showing IDs, Department
-// View All Roles
-//  -> table showing IDs, Title, Department, Salary
-// View All Employees
-//  -> table showing IDs, First Name, Lat Name, Title, Department, Salary, Manager
-// Add Department
-//  -> Enter name of department, adding department to the db
-// Add Role
-//  -> Enter name, salary, department, adding role to the db
-// Add Employee
-//  -> Enter first name, last name, role, manager, adding employee to the db
 // Update Employee Role
 //  -> promtp to select an employee from list of all employes
 //     to update their new role, updating this info to the db
-// Quit
+async function updateEmployee() {
+    let [employees] = await db.query(`SELECT * FROM employees`);
+    let [roles] = await db.query(`SELECT * FROM roles`);
+    await inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employees',
+            message: "Which employee would you like to update?",
+            choices: employees.map((emp) => {
+                return `${emp.first_name} ${emp.last_name}`
+            }),
+        },
+        {
+            type: 'list',
+            name: 'roles',
+            message: "Which role do you want to assign to the selected employee?",
+            choices: roles.map((role) => {
+                console.log(role.title);
+                console.log(role.id);
+                return {
+                    name: role.title,
+                    value: role.id
+                };
+            }),
+        }
+    ])
+        .then(async (ans) => {
+            //mysql do something
+            console.log(ans.employees);
+            console.log(ans.roles);
+        })
+        .catch((err) => console.log(err));
+}
+
+
 
 function init() {
     console.log("\nWelcome to the Employee Tracker System.\n");
