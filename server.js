@@ -1,52 +1,44 @@
 //const express = require('express');
 const inquirer = require('inquirer');
-const { inherits } = require('util');
+const util = require('util');
 const db = require("./config/connection");
-
-// const PORT = process.env.PORT || 3001;
-// const app = express();
-
-// Express middleware
-// app.use(express.urlencoded({ extended: false }));
-// app.use(express.json());
-
-//db created
-function doChoice(ans) {
-    console.log(ans.choice);
-    switch (ans.choice) {
-        case 'View All Departments':
-            viewAllDepartments();
-            break;
-    }
-}
 
 //db functions
 function viewAllDepartments() {
     db.query('SELECT * FROM departments', function (err, results) {
-        console.log(results); // need to print this out in a table format
+        console.log(results);
     });
-    //init();
+    promptUser();
 }
 
 //List of prompt questions
-const promptUser = () => {
-    return inquirer.prompt([
-        {
-            type: 'list',
-            name: 'choice',
-            message: 'What do you want to do?',
-            choices: [
-                'View All Departments',
-                'View All Roles',
-                'View All Employees',
-                'Add Department',
-                'Add Role',
-                'Add Employee',
-                'Update Employee Role',
-                'Quit',
-            ],
-        }
-    ]);
+const promptUser = async () => {
+    return inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'choice',
+                message: 'What do you want to do?',
+                choices: [
+                    'View All Departments',
+                    'View All Roles',
+                    'View All Employees',
+                    'Add Department',
+                    'Add Role',
+                    'Add Employee',
+                    'Update Employee Role',
+                    'Quit',
+                ],
+            }
+        ])
+        .then((ans) => {
+            switch (ans.choice) {
+                case 'View All Departments':
+                    viewAllDepartments();
+                    break;
+            }
+        })
+        .catch((err) => console.log(err));
 }
 
 // to do
@@ -69,9 +61,8 @@ const promptUser = () => {
 
 function init() {
     console.log("Welcome to the Employee Tracker System.");
-    promptUser()
-        .then((ans) => doChoice(ans))
-        .catch((err) => console.log(err));
+    //db.query = util.promisify(db.query);
+    promptUser();
 }
 
 init();
