@@ -9,6 +9,6 @@ const db = mysql.createPool(
         database: process.env.DB_NAME
     },
     console.log(`Connected to the ${process.env.DB_NAME} database`)
-);
+).promise(); //passing "db" as a promise
 
 module.exports = db;
