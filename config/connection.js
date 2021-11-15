@@ -6,9 +6,9 @@ const db = mysql.createPool(
         host: 'localhost',
         user: process.env.DB_USER,
         password: process.env.DB_PASS,
-        database: process.env.DB_NAME
+        database: 'company_db'
     },
-    console.log(`Connected to the ${process.env.DB_NAME} database`)
+    console.log(`Database connected`)
 ).promise(); //passing "db" as a promise
 
 module.exports = db;
